@@ -15,6 +15,8 @@
     const path = p[1];
     page = path;
   }
+
+ 
 </script>
 
 <svelte:window on:hashchange={onRouteChange} />

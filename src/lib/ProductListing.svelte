@@ -1,10 +1,12 @@
 <script>
 	import { onMount } from 'svelte';
 	import 'bootstrap/dist/css/bootstrap.min.css';
-	import { productStore } from '../lib/productStore';
-	//import ProductDetail from './ProductDetail.svelte';
-
-	let search = '';
+	import { productStore } from './stores';
+	import { searchStore } from './stores';
+	console.log($searchStore);
+	
+  let search = '';
+	let items = [];
 	let filteredItems = [];
 
 	let selectedCategories = [];
@@ -19,6 +21,7 @@
 			);
 		}
 		updateFilter();
+		
 	};
 
 	async function fetchData() {
@@ -26,13 +29,13 @@
 		const data = await response.json();
 
 		productStore.set(data);
-
-		updateFilter();
 	}
-	console.log({ productStore });
+	console.log(filteredItems);
+	
+	 
 
 	const updateFilter = () => {
-		filteredItems = $productStore.filter(
+		filteredItems = items.filter(
 			(item) =>
 				Object.values(item).some(
 					(value) =>
@@ -42,29 +45,32 @@
 				(selectedCategories.length === 0 ||
 					selectedCategories.some((category) => item.category === category))
 		);
-		const length = selectedCategories.length;
-		console.log({ filteredItems });
-		console.log({ length });
+		 console.log({ filteredItems });		
 	};
 
-	function handleSearchInput(event) {
-		search = event.target.value;
-		updateFilter();
-	}
+	searchStore.subscribe((sarchInput) =>{
+ console.log({ sarchInput });
+ search = sarchInput;
+ updateFilter();
+	})
+
 
 	onMount(() => {
 		fetchData();
+		setTimeout(() => {
+			 items = $productStore;
+			 search = $searchStore;
+			 console.log("search", $searchStore);
+		}, 1000);
 	});
 
 	$: filteredItems = $productStore;
-	$: categories = [...new Set($productStore.map((item) => item.category))];
+	$: categories = [...new Set(items.map((item) => item.category))];
+	$:  search = $searchStore;
+	
 
 </script>
 
-<div class="mt-3">
-	<label for="search ">Search:</label>
-	<input type="text" id="search" on:input={handleSearchInput} />
-</div>
 <div class=" mt-4">
 	<div class="d-flex">
 		<h6 class="ps-2">Categories :</h6>
@@ -85,7 +91,6 @@
 
 <div class="row mt-4">
 	{#each filteredItems as item}
-		<!-- {console.log("2nd time ", filteredItems)} -->
 		<div class="col-md-3">
 			<a href="#/ProductDetail/{item.id}" class="card-link">
 				<div class="card mb-4 box-shadow">

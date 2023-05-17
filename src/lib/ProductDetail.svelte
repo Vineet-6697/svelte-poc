@@ -1,5 +1,5 @@
 <script>
-  import { productStore } from "../lib/productStore";
+  import { productStore } from "./stores";
   import 'bootstrap/dist/css/bootstrap.min.css';
   import { onMount } from "svelte";
   let productsdetail = null;
@@ -8,10 +8,10 @@
     const response = await fetch(`https://fakestoreapi.com/products/${id}`);
     productsdetail = await response.json();
     productStore.set(productsdetail);
-    console.log({ productsdetail });
-    const unsub = productStore.subscribe((settings) => {
-      console.log("settings sub", settings);
-    });
+    // console.log({ productsdetail });
+    // const unsub = productStore.subscribe((settings) => {
+    //   console.log("settings sub", settings);
+    // });
   }
 
   onMount(() => {
