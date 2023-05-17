@@ -1,11 +1,9 @@
 <script>
 	import { searchStore } from './stores';
-		function handleSearchInput(event) {
+	function handleSearchInput(event) {
 		//search = event.target.value;
 		searchStore.set(event.target.value);
-		
 	}
-	
 </script>
 
 <nav class="navbar navbar-light bg-light justify-content-right p-3">

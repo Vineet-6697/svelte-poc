@@ -4,8 +4,8 @@
 	import { productStore } from './stores';
 	import { searchStore } from './stores';
 	console.log($searchStore);
-	
-  let search = '';
+
+	let search = '';
 	let items = [];
 	let filteredItems = [];
 
@@ -14,14 +14,12 @@
 		const selectedCategory = event.target.value;
 		if (event.target.checked) {
 			selectedCategories = [...selectedCategories, selectedCategory];
-			
 		} else {
 			selectedCategories = selectedCategories.filter(
 				(category) => category !== selectedCategory
 			);
 		}
 		updateFilter();
-		
 	};
 
 	async function fetchData() {
@@ -31,44 +29,48 @@
 		productStore.set(data);
 	}
 	console.log(filteredItems);
-	
-	 
 
 	const updateFilter = () => {
 		filteredItems = items.filter(
 			(item) =>
-				Object.values(item).some(
+			(search.length <= 3 || Object.values(item).some( 
 					(value) =>
 						typeof value === 'string' &&
 						value.toLowerCase().includes(search.toLowerCase())
-				) &&
+				)) &&
 				(selectedCategories.length === 0 ||
 					selectedCategories.some((category) => item.category === category))
 		);
-		 console.log({ filteredItems });		
+		console.log({ filteredItems });
 	};
 
-	searchStore.subscribe((sarchInput) =>{
- console.log({ sarchInput });
- search = sarchInput;
- updateFilter();
-	})
-
+	searchStore.subscribe((sarchInput) => {
+		console.log({ sarchInput });
+		search = sarchInput;
+		updateFilter();
+	});
 
 	onMount(() => {
 		fetchData();
 		setTimeout(() => {
-			 items = $productStore;
-			 search = $searchStore;
-			 console.log("search", $searchStore);
+			items = $productStore;
+			search = $searchStore;
+			console.log('search', $searchStore);
 		}, 1000);
 	});
+	
+
+		// if (search.trim().split(/\s+/).length > 3) updateFilter();
+		// else {
+		// 	if (search.trim().split(/\s+/).length <= 3) {
+		// 		productStore.set(items);
+		// 	}
+		// }
+	
 
 	$: filteredItems = $productStore;
 	$: categories = [...new Set(items.map((item) => item.category))];
-	$:  search = $searchStore;
-	
-
+	$: search = $searchStore;
 </script>
 
 <div class=" mt-4">
