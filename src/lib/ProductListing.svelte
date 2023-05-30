@@ -23,21 +23,36 @@
 	};
 
 	async function fetchData() {
-		const response = await fetch('https://fakestoreapi.com/products');
-		const data = await response.json();
+		
+		try {
+			const response = await fetch('https://fakestoreapi.com/products');
 
-		productStore.set(data);
+			if (response.status === 200) {
+				const data = await response.json();
+				productStore.set(data);
+			} else if (response.status === 404) {
+				throw new Error('API endpoint not found');
+			} else if (response.status === 500) {
+				throw new Error('Internal server error');
+			} else {
+				throw new Error('Failed to fetch data from the API');
+			}
+		} catch (error) {
+			console.error('Error:', error.message);
+		}
 	}
+
 	console.log(filteredItems);
 
 	const updateFilter = () => {
 		filteredItems = items.filter(
 			(item) =>
-			(search.length <= 3 || Object.values(item).some( 
-					(value) =>
-						typeof value === 'string' &&
-						value.toLowerCase().includes(search.toLowerCase())
-				)) &&
+				(search.length <= 3 ||
+					Object.values(item).some(
+						(value) =>
+							typeof value === 'string' &&
+							value.toLowerCase().includes(search.toLowerCase())
+					)) &&
 				(selectedCategories.length === 0 ||
 					selectedCategories.some((category) => item.category === category))
 		);
@@ -58,15 +73,13 @@
 			console.log('search', $searchStore);
 		}, 1000);
 	});
-	
 
-		// if (search.trim().split(/\s+/).length > 3) updateFilter();
-		// else {
-		// 	if (search.trim().split(/\s+/).length <= 3) {
-		// 		productStore.set(items);
-		// 	}
-		// }
-	
+	// if (search.trim().split(/\s+/).length > 3) updateFilter();
+	// else {
+	// 	if (search.trim().split(/\s+/).length <= 3) {
+	// 		productStore.set(items);
+	// 	}
+	// }
 
 	$: filteredItems = $productStore;
 	$: categories = [...new Set(items.map((item) => item.category))];
